@@ -1,0 +1,91 @@
+CREATE DATABASE LibraryDB
+
+CREATE TABLE Books
+ (book_id INT PRIMARY KEY AUTO_INCREMENT,
+ title VARCHAR(255) NOT NULL,
+ author VARCHAR(255) NOT NULL,
+ genre VARCHAR(100),
+ published_year YEAR,
+ status ENUM('Available', 'Borrowed') DEFAULT 'Available');
+
+CREATE TABLE Members
+(member_id INT PRIMARY KEY AUTO_INCREMENT,
+name VARCHAR(255) NOT NULL,
+email VARCHAR(255) UNIQUE NOT NULL,
+phone VARCHAR(20) UNIQUE,
+address TEXT);
+
+CREATE TABLE Librarians
+(librarian_id INT PRIMARY KEY AUTO_INCREMENT,
+name VARCHAR(255) NOT NULL,
+email VARCHAR(255) UNIQUE NOT NULL,
+phone VARCHAR(20) UNIQUE);
+
+CREATE TABLE Borrowed_Books
+(borrow_id INT PRIMARY KEY AUTO_INCREMENT,
+book_id INT,
+member_id INT,
+borrow_date datetime DEFAULT current_timestamp, 
+return_date DATE,
+FOREIGN KEY (book_id) REFERENCES BOOKS(book_id),
+FOREIGN KEY (member_id) REFERENCES MEMBERS(member_id));
+
+INSERT INTO Books (title, author, genre, published_year)
+VALUES
+('Nineteen Eighty-Four', 'George Orwell', 'Dystopian', 1949),
+('To Kill a Mockingbird', 'Harper Lee', 'Classic', 1960),
+('The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction', 1925),
+('Pride and Prejudice', 'Jane Austen', 'Romance', 1913);
+
+INSERT INTO members (name, email, phone, address)
+VALUES
+('ALice Johnson', 'alicejohnson@gmail.com', '2672478475', '267 street'),
+('Bob Smith', 'bob@yahoo.com', '3021457845', '36 street'),
+('Alex Johnson', 'alex1@gmail.com', '6987452140', '44 Chelten ave');
+
+INSERT INTO librarians (name, email, phone)
+VALUES
+('Mary Jane', 'mjane11@gmail.com', '3654124785'),
+('John Doe', 'john33@gmail.com', '2578474545'),
+('Alexender King', 'alex14@gmail.com', 2414784569)
+
+INSERT INTO borrowed_books (book_id, member_id, borrow_date)
+VALUES
+(2, 2, '2024-03-20 10:00:00');
+
+UPDATE books
+SET status = 'Borrowed'
+WHERE book_id = 2;
+
+SELECT * FROM books;
+
+SELECT * FROM borrowed_books; 
+
+SELECT * FROM books WHERE status = 'Available';
+
+INSERT INTO books (title, author, genre, published_year)
+VAlUES
+('The Alchemist', 'Paulo Coelho', 'Adventure', 1988);
+
+DELETE FROM members 
+WHERE member_id = 3;
+
+UPDATE borrowed_books
+SET return_date = current_date
+WHERE borrow_id = 2;
+
+UPDATE books
+SET status = 'Available'
+WHERE book_id = 2;
+
+SELECT b.title, m.name, bb.borrow_date
+FROM borrowed_books AS bb
+JOIN books AS b ON b.book_id = bb.borrow_id
+JOIN members AS m ON bb.member_id = m.member_id;
+
+SELECT b.title, m.name, bb.borrow_date,
+DATEDIFF(CURRENT_DATE, bb.borrow_date) AS days_borrowed
+FROM borrowed_books AS bb
+JOIN books AS b ON b.book_id = bb.borrow_id
+JOIN members AS m ON m.member_id = bb.member_id
+WHERE bb.return_date IS NULL AND datediff(CURRENT_DATE, bb.borrow_date ) >14;
